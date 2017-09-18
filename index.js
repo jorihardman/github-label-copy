@@ -37,7 +37,22 @@ cli.main(function(args, options) {
   }
 
   var ghUtil = new GithubIssueUtil(options.srcUser, options.accessToken, options.destUser);
-  ghUtil.getIssueLabels(options.srcRepo).then(function(srcIssueLabels) {
+
+  // Delete all destination labels first.
+  ghUtil.getIssueLabels(options.destRepo)
+  .then(function(destIssueLabels) {
+    console.log("Clearing labels from " + options.destRepo)
+    // Iterate through the labels but leave out "url" attribute since that will
+    // have information about the source repo we don't care about anymore.
+    let deleteRequests = _(destIssueLabels).map(function(label) {
+      return ghUtil.deleteIssueLabel(options.destRepo, _.omit(label, 'url'));
+    })
+    return Promise.all(deleteRequests.value());
+  })
+  .then(ghUtil.getIssueLabels.bind(ghUtil, options.srcRepo))
+  .then(function(srcIssueLabels) {
+    console.log("Syncing the following labels from " + options.srcRepo)
+    console.log(srcIssueLabels)
     // Iterate through the labels but leave out "url" attribute since that will
     // have information about the source repo we don't care about anymore.
     _(srcIssueLabels).each(function(label) {

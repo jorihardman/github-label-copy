@@ -3,11 +3,13 @@ github-label-copy
 
 Utility to copy the available issue labels from one Github repo to another.
 
+tldr: `node index.js -u jorihardman -c /Users/jori/.githubconfig -s source_repo -d dest_repo`
+
 ```
 Usage:
   index.js [OPTIONS] [ARGS]
 
-Options: 
+Options:
   -c, --configFile [PATH]Github config file path (Default is ~/.githubconfig)
   -u, --srcUser STRING   User name
       --destUser STRING  Destination user name when source/dest differ

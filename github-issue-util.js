@@ -10,6 +10,7 @@ function GithubIssueUtil(srcUserName, apiToken, destUserName) {
   this._apiToken = apiToken;
 
   this._baseUrl = 'https://api.github.com/repos/${owner}/${repo}/labels';
+  this._deleteUrl = 'https://api.github.com/repos/${owner}/${repo}/labels/${label}';
 
   this._defaultAuth = {
     user: 'githubkeygoeshere',
@@ -33,8 +34,9 @@ function GithubIssueUtil(srcUserName, apiToken, destUserName) {
 
   this._restClient = new NodeRestClient(this._makeAuth(this._apiToken));
 
-  this._restClient.registerMethod('getIssues', this._baseUrl, 'GET'); 
-  this._restClient.registerMethod('postIssue', this._baseUrl, 'POST'); 
+  this._restClient.registerMethod('getIssues', this._baseUrl, 'GET');
+  this._restClient.registerMethod('postIssue', this._baseUrl, 'POST');
+  this._restClient.registerMethod('deleteIssue', this._deleteUrl, 'DELETE');
 
   this.getIssueLabels = function getIssueLabels(srcRepo) {
     var deferred = RSVP.defer();
@@ -74,6 +76,24 @@ function GithubIssueUtil(srcUserName, apiToken, destUserName) {
 
     return deferred.promise;
   };
+
+  this.deleteIssueLabel = function(destRepo, label) {
+    var deferred = RSVP.defer();
+
+    var args = this._makeArgs({
+      path: {
+        owner: this._destUserName,
+        repo: destRepo,
+        label: label.name
+      }
+    });
+
+    this._restClient.methods.deleteIssue(args, function(data) {
+      deferred.resolve(true);
+    });
+
+    return deferred.promise;
+  }
 
 }
 
